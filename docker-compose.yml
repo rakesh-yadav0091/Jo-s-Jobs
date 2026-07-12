@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  php:
+    build: .
+    container_name: jos_jobs_php
+    volumes:
+      - ./jobs:/var/www/html
+    working_dir: /var/www/html
+    command: php -S 0.0.0.0:8000 -t /var/www/html/public
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    networks:
+      - jos_network
+
+  mysql:
+    image: mariadb:latest
+    container_name: jos_jobs_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: jobs
+      MYSQL_USER: student
+      MYSQL_PASSWORD: student
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - jos_network
+
+  adminer:
+    image: adminer:latest
+    container_name: jos_jobs_adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - jos_network
+
+volumes:
+  mysqldata:
+
+networks:
+  jos_network:
+    driver: bridge
